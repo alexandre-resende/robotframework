@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+	
+    <groupId>org.robotframework</groupId>
+    <artifactId>robotframework-maven-plugin</artifactId>
+    <packaging>maven-plugin</packaging>
+    <version>1.5.1</version>
+    <name>Robot Framework Maven Plugin</name>
+    <description>Maven plugin for the Robot Framework.</description>
+    
+    <properties>
+		<java.version>1.8</java.version>
+        <timestamp>${maven.build.timestamp}</timestamp>
+		<maven.build.timestamp.locale>pt_BR</maven.build.timestamp.locale>
+		<project.encoding>UTF-8</project.encoding>
+		<project.build.sourceEncoding>${project.encoding}</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>${project.encoding}</project.reporting.outputEncoding>
+		<maven.build.timestamp.format>yyyy-MM-dd</maven.build.timestamp.format>
+		<nexus.directory>​http://repository.local.com/test-report/</nexus.directory>
+    </properties>
+
+    <dependencies>
+		<!-- https://mvnrepository.com/artifact/com.github.hi-fi/robotframework-seleniumlibrary -->
+ 		<dependency>
+			<groupId>com.github.hi-fi</groupId>
+			<artifactId>robotframework-seleniumlibrary</artifactId>
+			<version>3.12.0.1</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.python/jython -->
+		<dependency>
+			<groupId>org.python</groupId>
+			<artifactId>jython</artifactId>
+			<version>2.7.0</version>
+		</dependency>
+
+		<!-- Set Local OJDBC -->
+		<dependency>
+			<groupId>com.oracle</groupId>
+			<artifactId>ojdbc7</artifactId>
+			<version>12.1.0.2</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/src/suite/Libraries/ojdbc7-12.1.0.2.jar</systemPath>
+		</dependency>
+		
+	</dependencies>
+
+    <build>
+        <plugins>
+			<plugin>
+				<artifactId>maven-clean-plugin</artifactId>
+				<version>3.1.0</version>
+				<executions>
+					<execution>
+						<id>test</id>
+						<phase>test</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<filesets>
+								<fileset>
+									<directory>${project.basedir}/target</directory>
+									<includes>**/site/**</includes>
+								</fileset>
+							</filesets>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.22.0</version>
+				<dependencies>
+					<dependency>
+						<groupId>org.apache.maven.surefire</groupId>
+						<artifactId>surefire-junit47</artifactId>
+						<version>2.22.0</version>
+					</dependency>
+				</dependencies>
+				<configuration>     
+					<parallel>methods</parallel>     
+					<threadCount>1</threadCount>
+				</configuration>
+			</plugin>
+			
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.8.0</version>
+				<configuration>
+					<encoding>${project.encoding}</encoding>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
+					<outputDirectory>${project.basedir}/src/main/resources</outputDirectory>
+				</configuration>
+				<dependencies>
+				</dependencies>
+				<goals>
+					<goal>run</goal>
+				</goals>
+		    </plugin>
+
+			<plugin>
+				<groupId>org.robotframework</groupId>
+				<artifactId>robotframework-maven-plugin</artifactId>
+				<version>1.5.1</version>
+				<executions>
+					<execution>
+					<goals>
+						<goal>clean</goal>
+					</goals>
+					</execution>
+				</executions>
+
+				<configuration>
+					<testCasesDirectory>${project.basedir}/src/suite/Test Cases</testCasesDirectory>
+					<outputDirectory>${project.basedir}/target/site/${timestamp}</outputDirectory>
+					<extraPathDirectories>
+						<extraPathDirectory>${project.basedir}/src/main/resources</extraPathDirectory>
+					</extraPathDirectories>
+				</configuration>
+				<dependencies>
+					<!-- https://mvnrepository.com/artifact/org.robotframework/robotframework -->
+					<dependency>
+						<groupId>org.robotframework</groupId>
+						<artifactId>robotframework</artifactId>
+						<version>3.1.2</version>
+					</dependency>
+					<!-- https://mvnrepository.com/artifact/com.github.hi-fi/robotframework-seleniumlibrary -->
+					<dependency>
+						<groupId>com.github.hi-fi</groupId>
+						<artifactId>robotframework-seleniumlibrary</artifactId>
+						<version>3.141.59.2653</version>
+						<exclusions>
+							<exclusion>
+								<groupId>com.github.markusbernhardt</groupId>
+								<artifactId>selenium2library</artifactId>
+							</exclusion>
+						</exclusions>
+					</dependency>
+					<!-- https://mvnrepository.com/artifact/org.hsqldb/hsqldb -->
+					<dependency>
+						<groupId>org.hsqldb</groupId>
+						<artifactId>hsqldb</artifactId>
+						<version>2.5.0</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+			
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-site-plugin</artifactId>
+				<version>3.7.1</version>
+				<configuration>
+					<outputDirectory>${project.basedir}/target/site/${timestamp}</outputDirectory>
+					<skipTests>${skipAllTests}</skipTests>
+					<encoding>${project.encoding}</encoding>
+				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>org.apache.maven.wagon</groupId>
+						<artifactId>wagon-ssh</artifactId>
+						<version>3.1.0</version>
+					</dependency>
+				</dependencies>	
+			</plugin>
+			
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-project-info-reports-plugin</artifactId>
+				<version>2.8</version>
+				<dependencies>
+					<dependency>
+						<groupId>org.apache.maven.shared</groupId>
+						<artifactId>maven-shared-jar</artifactId>
+						<version>1.1</version>
+						<exclusions>
+							<exclusion>
+								<groupId>org.apache.bcel</groupId>
+								<artifactId>bcel</artifactId>
+							</exclusion>
+						</exclusions>
+					</dependency>
+					<dependency>
+						<groupId>com.google.code.findbugs</groupId>
+						<artifactId>bcel-findbugs</artifactId>
+						<version>6.0</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+        </plugins>
+		
+		<extensions>
+			<extension>
+				<groupId>org.apache.maven.wagon</groupId>
+				<artifactId>wagon-webdav-jackrabbit</artifactId>
+				<version>3.0.0</version>
+			</extension>
+		</extensions>
+    </build>
+
+	<ciManagement>
+		<system>Jenkins</system>
+		<url>https://ci.qameta.in</url>
+	</ciManagement>
+	
+	<distributionManagement>
+		<site>
+			<id>nexus</id>
+			<name>nexus</name>
+			<url>dav:/${nexus.directory}${timestamp}</url>
+		</site>
+	</distributionManagement>
+	
+</project>
